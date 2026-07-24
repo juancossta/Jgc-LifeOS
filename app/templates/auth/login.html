@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Entrar · LifeOS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div class="card-lifeos fade-in" style="width: 100%; max-width: 380px;">
+    <h4 class="mb-1 fw-bold"><i class="bi bi-infinity text-primary"></i> LifeOS</h4>
+    <p class="text-muted small mb-4">Entre para acessar seu segundo cérebro.</p>
+
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.email.label(class="form-label small") }}
+        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+        {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.senha.label(class="form-label small") }}
+        {{ form.senha(class="form-control" + (" is-invalid" if form.senha.errors else "")) }}
+        {% for e in form.senha.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-check mb-3">
+        {{ form.lembrar(class="form-check-input") }}
+        {{ form.lembrar.label(class="form-check-label small") }}
+      </div>
+      {{ form.submit(class="btn btn-lifeos btn-lifeos-primary w-100") }}
+    </form>
+
+    <p class="text-center small text-muted mt-3 mb-0">
+      Não tem conta? <a href="{{ url_for('auth.register') }}">Criar conta</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

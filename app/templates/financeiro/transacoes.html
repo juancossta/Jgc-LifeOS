@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Transações · Financeiro · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Financeiro / Transações{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">Transações</h3>
+  <a href="{{ url_for('financeiro.transacao_nova') }}" class="btn btn-lifeos btn-lifeos-primary"><i class="bi bi-plus-lg"></i> Nova transação</a>
+</div>
+
+<div class="d-flex gap-2 mb-3">
+  <a href="{{ url_for('financeiro.transacoes') }}" class="btn btn-sm {{ 'btn-lifeos-primary' if not tipo_filtro else 'btn-lifeos-outline' }} btn-lifeos">Todas</a>
+  <a href="{{ url_for('financeiro.transacoes', tipo='receita') }}" class="btn btn-sm {{ 'btn-lifeos-primary' if tipo_filtro == 'receita' else 'btn-lifeos-outline' }} btn-lifeos">Receitas</a>
+  <a href="{{ url_for('financeiro.transacoes', tipo='despesa') }}" class="btn btn-sm {{ 'btn-lifeos-primary' if tipo_filtro == 'despesa' else 'btn-lifeos-outline' }} btn-lifeos">Despesas</a>
+</div>
+
+<div class="card-lifeos">
+  <div class="table-responsive">
+    <table class="table table-lifeos align-middle mb-0">
+      <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
+      <tbody>
+        {% for t in pagination.items %}
+        <tr>
+          <td>{{ t.data.strftime('%d/%m/%Y') }}</td>
+          <td>{{ t.descricao or '—' }}</td>
+          <td>{{ t.categoria.nome if t.categoria else '—' }}</td>
+          <td><span class="badge-lifeos {{ 'badge-success' if t.tipo == 'receita' else 'badge-danger' }}">{{ 'Receita' if t.tipo == 'receita' else 'Despesa' }}</span></td>
+          <td>R$ {{ "%.2f"|format(t.valor) }}</td>
+          <td class="text-end">
+            <a href="{{ url_for('financeiro.transacao_editar', transacao_id=t.id) }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-pencil"></i></a>
+            <form method="POST" action="{{ url_for('financeiro.transacao_excluir', transacao_id=t.id) }}" class="d-inline" data-confirm-delete="Excluir esta transação?">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-lifeos-outline text-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">Nenhuma transação encontrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination justify-content-center">
+    {% for p in pagination.iter_pages() %}
+      {% if p %}
+        <li class="page-item {{ 'active' if p == pagination.page }}"><a class="page-link" href="{{ url_for('financeiro.transacoes', page=p, tipo=tipo_filtro) }}">{{ p }}</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

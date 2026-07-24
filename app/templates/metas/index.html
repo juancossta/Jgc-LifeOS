@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Metas · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Metas{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0"><i class="bi bi-flag text-primary"></i> Metas</h3>
+  <a href="{{ url_for('metas.novo') }}" class="btn btn-lifeos btn-lifeos-primary"><i class="bi bi-plus-lg"></i> Nova meta</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Total</span><span class="stat-value">{{ stats.total }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Em andamento</span><span class="stat-value">{{ stats.em_andamento }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Concluídas</span><span class="stat-value text-success">{{ stats.concluidas }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Atrasadas</span><span class="stat-value {{ 'text-danger' if stats.atrasadas else '' }}">{{ stats.atrasadas }}</span></div>
+  </div>
+</div>
+
+<div class="d-flex gap-2 mb-3 flex-wrap">
+  <a href="{{ url_for('metas.index') }}" class="btn btn-sm {{ 'btn-lifeos-primary' if not categoria_filtro and not status_filtro else 'btn-lifeos-outline' }} btn-lifeos">Todas</a>
+  {% for value, label in categoria_choices %}
+    <a href="{{ url_for('metas.index', categoria=value) }}" class="btn btn-sm {{ 'btn-lifeos-primary' if categoria_filtro == value else 'btn-lifeos-outline' }} btn-lifeos">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  {% for m in metas %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card-lifeos fade-in h-100">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <h6 class="fw-bold mb-0">{{ m.titulo }}</h6>
+        <span class="badge-lifeos badge-success">{{ m.categoria_label }}</span>
+      </div>
+      {% if m.objetivo %}<p class="small text-muted mb-2">{{ m.objetivo }}</p>{% endif %}
+
+      <div class="d-flex justify-content-between small text-muted mb-1">
+        <span>{{ m.valor_atual }} / {{ m.valor_final }}</span>
+        <span>{{ m.progresso }}%</span>
+      </div>
+      <div class="progress mb-2" style="height: 8px;">
+        <div class="progress-bar {{ 'bg-success' if m.status == 'concluida' else ('bg-danger' if m.atrasada else 'bg-primary') }}" style="width: {{ m.progresso }}%;"></div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="small {{ 'text-danger fw-semibold' if m.atrasada else 'text-muted' }}">
+          {% if m.status == 'concluida' %}
+            <i class="bi bi-check-circle-fill text-success"></i> Concluída
+          {% elif m.status == 'cancelada' %}
+            Cancelada
+          {% elif m.prazo %}
+            {{ m.prazo.strftime('%d/%m/%Y') }}{{ ' · atrasada' if m.atrasada else '' }}
+          {% else %}
+            Sem prazo
+          {% endif %}
+        </span>
+        <div class="d-flex gap-1">
+          <a href="{{ url_for('metas.editar', meta_id=m.id) }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-pencil"></i></a>
+          <form method="POST" action="{{ url_for('metas.excluir', meta_id=m.id) }}" data-confirm-delete="Excluir esta meta?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-lifeos-outline text-danger"><i class="bi bi-trash"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12"><div class="card-lifeos text-center text-muted py-5">Nenhuma meta encontrada. <a href="{{ url_for('metas.novo') }}">Criar a primeira</a>.</div></div>
+  {% endfor %}
+</div>
+
+{% endblock %}

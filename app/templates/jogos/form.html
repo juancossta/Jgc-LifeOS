@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} · Jogos · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Jogos / {{ titulo }}{% endblock %}
+{% block content %}
+
+<div class="card-lifeos fade-in" style="max-width: 640px;">
+  <h5 class="fw-bold mb-4">{{ titulo }}</h5>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        {{ form.data.label(class="form-label small") }}
+        {{ form.data(class="form-control" + (" is-invalid" if form.data.errors else "")) }}
+        {% for e in form.data.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-5">
+        {{ form.jogo.label(class="form-label small") }}
+        {{ form.jogo(class="form-control" + (" is-invalid" if form.jogo.errors else ""), placeholder="Ex: Summoners War") }}
+        {% for e in form.jogo.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-3">
+        {{ form.tempo_minutos.label(class="form-label small") }}
+        {{ form.tempo_minutos(class="form-control" + (" is-invalid" if form.tempo_minutos.errors else "")) }}
+        {% for e in form.tempo_minutos.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.plataforma.label(class="form-label small") }}
+      {{ form.plataforma(class="form-control", placeholder="Ex: PC, Mobile, PS5...") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.observacoes.label(class="form-label small") }}
+      {{ form.observacoes(class="form-control", rows="2") }}
+    </div>
+
+    <div class="d-flex gap-2">
+      {{ form.submit(class="btn btn-lifeos btn-lifeos-primary") }}
+      <a href="{{ url_for('jogos.index') }}" class="btn btn-lifeos btn-lifeos-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Criar conta · LifeOS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div class="card-lifeos fade-in" style="width: 100%; max-width: 380px;">
+    <h4 class="mb-1 fw-bold"><i class="bi bi-infinity text-primary"></i> LifeOS</h4>
+    <p class="text-muted small mb-4">Crie sua conta para começar.</p>
+
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.nome.label(class="form-label small") }}
+        {{ form.nome(class="form-control" + (" is-invalid" if form.nome.errors else "")) }}
+        {% for e in form.nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.email.label(class="form-label small") }}
+        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+        {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.senha.label(class="form-label small") }}
+        {{ form.senha(class="form-control" + (" is-invalid" if form.senha.errors else "")) }}
+        {% for e in form.senha.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.confirmar_senha.label(class="form-label small") }}
+        {{ form.confirmar_senha(class="form-control" + (" is-invalid" if form.confirmar_senha.errors else "")) }}
+        {% for e in form.confirmar_senha.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      {{ form.submit(class="btn btn-lifeos btn-lifeos-primary w-100") }}
+    </form>
+
+    <p class="text-center small text-muted mt-3 mb-0">
+      Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

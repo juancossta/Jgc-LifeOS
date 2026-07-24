@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Saúde · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Saúde{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0"><i class="bi bi-heart-pulse text-primary"></i> Saúde</h3>
+  <a href="{{ url_for('saude.novo') }}" class="btn btn-lifeos btn-lifeos-primary"><i class="bi bi-plus-lg"></i> Novo registro</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card">
+      <span class="stat-label">Peso atual</span>
+      <span class="stat-value">
+        {{ stats.peso_atual if stats.peso_atual else '—' }}{{ ' kg' if stats.peso_atual }}
+        {% if stats.variacao_peso %}
+          <span class="small {{ 'text-danger' if stats.variacao_peso > 0 else 'text-success' }}">
+            ({{ '+' if stats.variacao_peso > 0 }}{{ stats.variacao_peso }})
+          </span>
+        {% endif %}
+      </span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card">
+      <span class="stat-label">IMC</span>
+      <span class="stat-value">
+        {{ stats.imc_atual if stats.imc_atual else '—' }}
+        {% if stats.imc_classificacao %}<span class="small text-muted d-block" style="font-size: 0.7rem;">{{ stats.imc_classificacao }}</span>{% endif %}
+      </span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Sono médio (semana)</span><span class="stat-value">{{ stats.media_sono_semana }}h</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Água média (semana)</span><span class="stat-value">{{ stats.media_agua_semana }}ml</span></div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card">
+      <span class="stat-label"><i class="bi bi-droplet text-info"></i> Sequência meta de água</span>
+      <span class="stat-value">{{ stats.dias_consecutivos_agua }} <span class="fs-6 text-muted">dias</span></span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card">
+      <span class="stat-label"><i class="bi bi-moon text-primary"></i> Sequência meta de sono</span>
+      <span class="stat-value">{{ stats.dias_consecutivos_sono }} <span class="fs-6 text-muted">dias</span></span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Treinos esta semana</span><span class="stat-value">{{ stats.treinos_semana }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Total de registros</span><span class="stat-value">{{ stats.total_registros }}</span></div>
+  </div>
+</div>
+
+{% if correlacao.amostras_suficientes %}
+<div class="card-lifeos mb-4">
+  <h6 class="fw-bold mb-2"><i class="bi bi-graph-up"></i> Treino x Humor</h6>
+  <p class="small text-muted mb-0">
+    Seu humor médio é <strong>{{ correlacao.media_humor_treino }}/5</strong> nos dias em que você treina,
+    contra <strong>{{ correlacao.media_humor_sem_treino }}/5</strong> nos dias sem treino.
+    {% if correlacao.media_humor_treino > correlacao.media_humor_sem_treino %}
+      Treinar parece te ajudar. 💪
+    {% endif %}
+  </p>
+</div>
+{% endif %}
+
+{% if metas_saude %}
+<div class="card-lifeos mb-4">
+  <h6 class="fw-bold mb-3"><i class="bi bi-flag"></i> Metas de saúde em andamento</h6>
+  {% for m in metas_saude %}
+  <div class="mb-2">
+    <div class="d-flex justify-content-between small mb-1"><span>{{ m.titulo }}</span><span>{{ m.progresso }}%</span></div>
+    <div class="progress" style="height: 6px;"><div class="progress-bar bg-primary" style="width: {{ m.progresso }}%;"></div></div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if peso_labels %}
+<div class="card-lifeos mb-4">
+  <h6 class="fw-bold mb-3">Evolução do peso</h6>
+  <canvas id="graficoPeso" height="100"></canvas>
+</div>
+{% endif %}
+
+<div class="card-lifeos">
+  <div class="table-responsive">
+    <table class="table table-lifeos align-middle mb-0">
+      <thead><tr><th>Data</th><th>Peso</th><th>Água</th><th>Sono</th><th>Treino</th><th>Passos</th><th></th></tr></thead>
+      <tbody>
+        {% for r in pagination.items %}
+        <tr>
+          <td>{{ r.data.strftime('%d/%m/%Y') }}</td>
+          <td>{{ (r.peso ~ ' kg') if r.peso else '—' }}</td>
+          <td>{{ r.agua_ml }} ml</td>
+          <td>{{ r.sono_horas }}h</td>
+          <td>
+            {% if r.treinou %}
+              <span class="badge-lifeos badge-success">{{ r.tipo_treino or 'Treino' }}{{ ' · ' ~ r.cardio_min ~ 'min cardio' if r.cardio_min }}</span>
+            {% else %}
+              <span class="badge-lifeos badge-warning">não treinou</span>
+            {% endif %}
+          </td>
+          <td>{{ r.passos }}</td>
+          <td class="text-end">
+            <a href="{{ url_for('saude.editar', registro_id=r.id) }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-pencil"></i></a>
+            <form method="POST" action="{{ url_for('saude.excluir', registro_id=r.id) }}" class="d-inline" data-confirm-delete="Excluir este registro de saúde?">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-lifeos-outline text-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">Nenhum registro encontrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination justify-content-center">
+    {% for p in pagination.iter_pages() %}
+      {% if p %}
+        <li class="page-item {{ 'active' if p == pagination.page }}"><a class="page-link" href="{{ url_for('saude.index', page=p) }}">{{ p }}</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if peso_labels %}
+<script>
+  new Chart(document.getElementById('graficoPeso'), {
+    type: 'line',
+    data: {
+      labels: {{ peso_labels | tojson }},
+      datasets: [
+        {
+          label: 'Peso (kg)',
+          data: {{ peso_valores | tojson }},
+          borderColor: '#c7c9f5',
+          backgroundColor: 'rgba(79, 70, 229, 0.05)',
+          tension: 0.3,
+          pointRadius: 2,
+        },
+        {
+          label: 'Média móvel (7 dias)',
+          data: {{ peso_media_movel | tojson }},
+          borderColor: '#4f46e5',
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: { plugins: { legend: { display: true, labels: { boxWidth: 10, font: { size: 11 } } } } }
+  });
+</script>
+{% endif %}
+{% endblock %}

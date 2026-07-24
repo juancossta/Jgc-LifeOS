@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} · Perfil · LifeOS{% endblock %}
+{% block breadcrumb %}Perfil / {{ titulo }}{% endblock %}
+{% block content %}
+
+<div class="card-lifeos fade-in" style="max-width: 560px;">
+  <h5 class="fw-bold mb-4">{{ titulo }}</h5>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.titulo.label(class="form-label small") }}
+      {{ form.titulo(class="form-control" + (" is-invalid" if form.titulo.errors else ""), placeholder="Ex: Hora de estudar") }}
+      {% for e in form.titulo.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.mensagem.label(class="form-label small") }}
+      {{ form.mensagem(class="form-control", placeholder="Ex: Bora abrir o VS Code! 💻") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.hora.label(class="form-label small") }}
+      {{ form.hora(class="form-control" + (" is-invalid" if form.hora.errors else "")) }}
+      {% for e in form.hora.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <label class="form-label small d-block">Dias da semana</label>
+    <div class="d-flex gap-3 flex-wrap mb-3">
+      <div class="form-check">{{ form.seg(class="form-check-input") }}{{ form.seg.label(class="form-check-label small") }}</div>
+      <div class="form-check">{{ form.ter(class="form-check-input") }}{{ form.ter.label(class="form-check-label small") }}</div>
+      <div class="form-check">{{ form.qua(class="form-check-input") }}{{ form.qua.label(class="form-check-label small") }}</div>
+      <div class="form-check">{{ form.qui(class="form-check-input") }}{{ form.qui.label(class="form-check-label small") }}</div>
+      <div class="form-check">{{ form.sex(class="form-check-input") }}{{ form.sex.label(class="form-check-label small") }}</div>
+      <div class="form-check">{{ form.sab(class="form-check-input") }}{{ form.sab.label(class="form-check-label small") }}</div>
+      <div class="form-check">{{ form.dom(class="form-check-input") }}{{ form.dom.label(class="form-check-label small") }}</div>
+    </div>
+
+    <div class="form-check form-switch mb-3">
+      {{ form.ativo(class="form-check-input", role="switch") }}
+      {{ form.ativo.label(class="form-check-label small") }}
+    </div>
+
+    <div class="d-flex gap-2">
+      {{ form.submit(class="btn btn-lifeos btn-lifeos-primary") }}
+      <a href="{{ url_for('perfil.index') }}" class="btn btn-lifeos btn-lifeos-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

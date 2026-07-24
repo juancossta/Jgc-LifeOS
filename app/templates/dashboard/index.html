@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h3 class="fw-bold mb-0">Olá, {{ current_user.nome.split(' ')[0] }} 👋</h3>
+    <p class="text-muted mb-0">Resumo geral de {{ hoje.strftime('%d/%m/%Y') }}</p>
+  </div>
+  <a href="{{ url_for('fe.novo') }}" class="btn btn-lifeos btn-lifeos-primary">
+    <i class="bi bi-plus-lg"></i> Novo registro de fé
+  </a>
+</div>
+
+<!-- Linha 1: Fé, Pureza, Humor, Jogos -->
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-fire text-danger"></i> Sequência de Fé</span>
+      <span class="stat-value">{{ cards.dias_consecutivos_fe }} <span class="fs-6 text-muted">dias</span></span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-shield-check text-success"></i> Sequência de Pureza</span>
+      <span class="stat-value">{{ cards.dias_consecutivos_pureza }} <span class="fs-6 text-muted">dias</span></span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-emoji-smile text-warning"></i> Humor hoje</span>
+      <span class="stat-value">{{ cards.humor_hoje ~ '/5' if cards.humor_hoje else '—' }}</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-controller text-info"></i> Jogo hoje</span>
+      <span class="stat-value">{{ cards.tempo_jogo_hoje }} <span class="fs-6 text-muted">min</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- Linha 2: Saúde, Estudos, Projetos, Metas -->
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-heart-pulse text-danger"></i> Peso atual</span>
+      <span class="stat-value">{{ (cards.peso_atual ~ ' kg') if cards.peso_atual else '—' }}</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-mortarboard text-primary"></i> Horas de estudo (semana)</span>
+      <span class="stat-value">{{ cards.horas_estudo_semana }}h</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-kanban text-primary"></i> Projetos ativos</span>
+      <span class="stat-value">
+        {{ cards.projetos_ativos }}
+        {% if cards.projetos_atrasados %}<span class="badge-lifeos badge-danger ms-1">{{ cards.projetos_atrasados }} atrasado(s)</span>{% endif %}
+      </span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-flag text-primary"></i> Metas</span>
+      <span class="stat-value">{{ cards.metas_em_andamento }} <span class="fs-6 text-muted">em andamento</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- Linha 3: Financeiro -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-4">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label"><i class="bi bi-cash-coin"></i> Saldo total</span>
+      <span class="stat-value {{ 'text-danger' if cards.saldo < 0 else 'text-success' }}">R$ {{ "%.2f"|format(cards.saldo) }}</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label">Receitas do mês</span>
+      <span class="stat-value text-success">R$ {{ "%.2f"|format(cards.receitas_mes) }}</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="card-lifeos stat-card fade-in">
+      <span class="stat-label">Despesas do mês</span>
+      <span class="stat-value text-danger">R$ {{ "%.2f"|format(cards.despesas_mes) }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card-lifeos fade-in">
+      <h6 class="fw-bold mb-3">Capítulos lidos — últimos 7 dias</h6>
+      <canvas id="graficoFe" height="130"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-lifeos fade-in">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">Atividade recente</h6>
+        <a href="{{ url_for('historico.index') }}" class="small">Ver histórico completo →</a>
+      </div>
+      {% if ultimos_registros %}
+        <ul class="list-unstyled mb-0">
+          {% for item in ultimos_registros %}
+          <li class="d-flex justify-content-between align-items-start py-2 border-bottom">
+            <span class="small">
+              <i class="bi {{ item.icone }} text-primary"></i>
+              {{ item.resumo }}
+            </span>
+            <span class="text-muted small text-nowrap ms-2">{{ item.data.strftime('%d/%m') }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted small mb-0">Nenhum registro ainda. Comece criando seu primeiro registro em qualquer módulo.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const ctx = document.getElementById('graficoFe');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{ grafico_labels | tojson }},
+      datasets: [{
+        label: 'Capítulos',
+        data: {{ grafico_valores | tojson }},
+        backgroundColor: '#4f46e5',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+</script>
+{% endblock %}

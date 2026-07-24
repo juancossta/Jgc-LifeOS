@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Objetivos · Financeiro · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Financeiro / Objetivos{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">Objetivos financeiros</h3>
+  <a href="{{ url_for('financeiro.objetivo_novo') }}" class="btn btn-lifeos btn-lifeos-primary"><i class="bi bi-plus-lg"></i> Novo objetivo</a>
+</div>
+
+<div class="row g-3">
+  {% for o in objetivos %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card-lifeos fade-in h-100">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <h6 class="fw-bold mb-0">{{ o.titulo }}</h6>
+        {% if o.concluido %}<span class="badge-lifeos badge-success">Concluído</span>{% endif %}
+      </div>
+      <p class="small text-muted mb-2">R$ {{ "%.2f"|format(o.valor_atual) }} de R$ {{ "%.2f"|format(o.valor_meta) }}</p>
+      <div class="progress mb-2" style="height: 8px;">
+        <div class="progress-bar {{ 'bg-success' if o.concluido else 'bg-primary' }}" style="width: {{ o.progresso }}%;"></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="small text-muted">{{ o.prazo.strftime('%d/%m/%Y') if o.prazo else 'Sem prazo' }}</span>
+        <div class="d-flex gap-1">
+          <a href="{{ url_for('financeiro.objetivo_editar', objetivo_id=o.id) }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-pencil"></i></a>
+          <form method="POST" action="{{ url_for('financeiro.objetivo_excluir', objetivo_id=o.id) }}" data-confirm-delete="Excluir este objetivo?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-lifeos-outline text-danger"><i class="bi bi-trash"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12"><div class="card-lifeos text-center text-muted py-5">Nenhum objetivo ainda. <a href="{{ url_for('financeiro.objetivo_novo') }}">Criar o primeiro</a>.</div></div>
+  {% endfor %}
+</div>
+
+{% endblock %}

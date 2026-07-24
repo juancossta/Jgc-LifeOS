@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} · Pureza · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Pureza / {{ titulo }}{% endblock %}
+{% block content %}
+
+<div class="card-lifeos fade-in" style="max-width: 640px;">
+  <h5 class="fw-bold mb-4">{{ titulo }}</h5>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.data.label(class="form-label small") }}
+      {{ form.data(class="form-control" + (" is-invalid" if form.data.errors else "")) }}
+      {% for e in form.data.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3 p-3 rounded-3" style="background: var(--color-bg);">
+      <div class="form-check form-switch">
+        {{ form.resistiu(class="form-check-input", id="resistiu-check", role="switch") }}
+        {{ form.resistiu.label(class="form-check-label fw-semibold") }}
+      </div>
+    </div>
+
+    <div id="campos-recaida" class="border-top pt-3">
+      <p class="small text-muted mb-3">Estes campos ajudam a identificar padrões para evitar recaídas futuras.</p>
+
+      <div class="mb-3">
+        {{ form.gatilho.label(class="form-label small") }}
+        {{ form.gatilho(class="form-control") }}
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          {{ form.local.label(class="form-label small") }}
+          {{ form.local(class="form-control") }}
+        </div>
+        <div class="col-md-6">
+          {{ form.sentimento.label(class="form-label small") }}
+          {{ form.sentimento(class="form-control") }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.como_evitar.label(class="form-label small") }}
+        {{ form.como_evitar(class="form-control", rows="2") }}
+      </div>
+
+      <div class="form-check mb-3">
+        {{ form.orou_depois(class="form-check-input") }}
+        {{ form.orou_depois.label(class="form-check-label small") }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.versiculo.label(class="form-label small") }}
+        {{ form.versiculo(class="form-control") }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.observacoes.label(class="form-label small") }}
+      {{ form.observacoes(class="form-control", rows="2") }}
+    </div>
+
+    <div class="d-flex gap-2">
+      {{ form.submit(class="btn btn-lifeos btn-lifeos-primary") }}
+      <a href="{{ url_for('pureza.index') }}" class="btn btn-lifeos btn-lifeos-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Campo condicional: os detalhes da recaída só aparecem quando "resistiu" está DESMARCADO
+  document.addEventListener("DOMContentLoaded", () => {
+    const checkbox = document.getElementById("resistiu-check");
+    const campos = document.getElementById("campos-recaida");
+    function atualizar() {
+      campos.style.display = checkbox.checked ? "none" : "block";
+    }
+    checkbox.addEventListener("change", atualizar);
+    atualizar();
+  });
+</script>
+{% endblock %}

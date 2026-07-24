@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} · Fé · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Fé / {{ titulo }}{% endblock %}
+{% block content %}
+
+<div class="card-lifeos fade-in" style="max-width: 720px;">
+  <h5 class="fw-bold mb-4">{{ titulo }}</h5>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="row g-3 mb-2">
+      <div class="col-md-4">
+        {{ form.data.label(class="form-label small") }}
+        {{ form.data(class="form-control" + (" is-invalid" if form.data.errors else "")) }}
+        {% for e in form.data.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-8">
+        {{ form.livro.label(class="form-label small") }}
+        {{ form.livro(class="form-control", placeholder="Ex: Salmos") }}
+      </div>
+    </div>
+
+    <div class="row g-3 mb-2">
+      <div class="col-md-4">
+        {{ form.capitulo_inicial.label(class="form-label small") }}
+        {{ form.capitulo_inicial(class="form-control" + (" is-invalid" if form.capitulo_inicial.errors else "")) }}
+        {% for e in form.capitulo_inicial.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        {{ form.capitulo_final.label(class="form-label small") }}
+        {{ form.capitulo_final(class="form-control" + (" is-invalid" if form.capitulo_final.errors else "")) }}
+        {% for e in form.capitulo_final.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        {{ form.tempo_leitura_min.label(class="form-label small") }}
+        {{ form.tempo_leitura_min(class="form-control") }}
+      </div>
+    </div>
+
+    <div class="row g-3 align-items-center mb-2">
+      <div class="col-md-4 form-check ms-3 mt-4">
+        {{ form.orou(class="form-check-input", id="orou-check") }}
+        {{ form.orou.label(class="form-check-label small") }}
+      </div>
+      <div class="col-md-8">
+        {{ form.tempo_oracao_min.label(class="form-label small") }}
+        {{ form.tempo_oracao_min(class="form-control") }}
+      </div>
+    </div>
+
+    <div class="mb-2">
+      {{ form.versiculo_favorito.label(class="form-label small") }}
+      {{ form.versiculo_favorito(class="form-control") }}
+    </div>
+
+    <div class="mb-2">
+      {{ form.devocional.label(class="form-label small") }}
+      {{ form.devocional(class="form-control", rows="3") }}
+    </div>
+
+    <div class="mb-2">
+      {{ form.aprendizado.label(class="form-label small") }}
+      {{ form.aprendizado(class="form-control", rows="2") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.observacoes.label(class="form-label small") }}
+      {{ form.observacoes(class="form-control", rows="2") }}
+    </div>
+
+    <div class="d-flex gap-2">
+      {{ form.submit(class="btn btn-lifeos btn-lifeos-primary") }}
+      <a href="{{ url_for('fe.index') }}" class="btn btn-lifeos btn-lifeos-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

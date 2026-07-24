@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Financeiro · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Financeiro{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h3 class="fw-bold mb-0"><i class="bi bi-cash-coin text-primary"></i> Financeiro</h3>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('financeiro.transacao_nova') }}" class="btn btn-lifeos btn-lifeos-primary"><i class="bi bi-plus-lg"></i> Nova transação</a>
+    <a href="{{ url_for('financeiro.categorias') }}" class="btn btn-lifeos btn-lifeos-outline"><i class="bi bi-tags"></i> Categorias</a>
+    <a href="{{ url_for('financeiro.objetivos') }}" class="btn btn-lifeos btn-lifeos-outline"><i class="bi bi-flag"></i> Objetivos</a>
+    <a href="{{ url_for('financeiro.investimentos') }}" class="btn btn-lifeos btn-lifeos-outline"><i class="bi bi-graph-up-arrow"></i> Investimentos</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card">
+      <span class="stat-label">Saldo total</span>
+      <span class="stat-value {{ 'text-danger' if saldo < 0 else 'text-success' }}">R$ {{ "%.2f"|format(saldo) }}</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Receitas do mês</span><span class="stat-value text-success">R$ {{ "%.2f"|format(receitas_mes) }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Despesas do mês</span><span class="stat-value text-danger">R$ {{ "%.2f"|format(despesas_mes) }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card">
+      <span class="stat-label">Investimentos (atual)</span>
+      <span class="stat-value">R$ {{ "%.2f"|format(total_atual_investimentos) }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-7">
+    <div class="card-lifeos fade-in">
+      <h6 class="fw-bold mb-3">Receitas x Despesas — últimos 6 meses</h6>
+      <canvas id="graficoEvolucao" height="130"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-lifeos fade-in">
+      <h6 class="fw-bold mb-3">Despesas por categoria (mês atual)</h6>
+      {% if cat_labels %}
+        <canvas id="graficoCategorias" height="180"></canvas>
+      {% else %}
+        <p class="text-muted small mb-0">Nenhuma despesa registrada este mês.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card-lifeos fade-in">
+      <h6 class="fw-bold mb-3">Últimas transações</h6>
+      {% if ultimas %}
+      <ul class="list-unstyled mb-0">
+        {% for t in ultimas %}
+        <li class="d-flex justify-content-between py-2 border-bottom">
+          <span class="small">{{ t.data.strftime('%d/%m') }} — {{ t.descricao or (t.categoria.nome if t.categoria else 'Sem categoria') }}</span>
+          <span class="badge-lifeos {{ 'badge-success' if t.tipo == 'receita' else 'badge-danger' }}">
+            {{ '+' if t.tipo == 'receita' else '-' }} R$ {{ "%.2f"|format(t.valor) }}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted small mb-0">Nenhuma transação ainda. <a href="{{ url_for('financeiro.transacao_nova') }}">Registrar a primeira</a>.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-lifeos fade-in">
+      <h6 class="fw-bold mb-3">Objetivos financeiros</h6>
+      {% if objetivos %}
+        {% for o in objetivos %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between small mb-1">
+            <span>{{ o.titulo }}</span><span>{{ o.progresso }}%</span>
+          </div>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar {{ 'bg-success' if o.concluido else 'bg-primary' }}" style="width: {{ o.progresso }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+        <a href="{{ url_for('financeiro.objetivos') }}" class="small">Ver todos →</a>
+      {% else %}
+        <p class="text-muted small mb-0">Nenhum objetivo ainda. <a href="{{ url_for('financeiro.objetivo_novo') }}">Criar o primeiro</a>.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  new Chart(document.getElementById('graficoEvolucao'), {
+    type: 'bar',
+    data: {
+      labels: {{ evol_labels | tojson }},
+      datasets: [
+        { label: 'Receitas', data: {{ evol_receitas | tojson }}, backgroundColor: '#16a34a', borderRadius: 6 },
+        { label: 'Despesas', data: {{ evol_despesas | tojson }}, backgroundColor: '#dc2626', borderRadius: 6 },
+      ]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+
+  {% if cat_labels %}
+  new Chart(document.getElementById('graficoCategorias'), {
+    type: 'doughnut',
+    data: {
+      labels: {{ cat_labels | tojson }},
+      datasets: [{
+        data: {{ cat_valores | tojson }},
+        backgroundColor: ['#4f46e5', '#0284c7', '#d97706', '#dc2626', '#16a34a', '#9333ea', '#0891b2'],
+      }]
+    },
+    options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+  });
+  {% endif %}
+</script>
+{% endblock %}

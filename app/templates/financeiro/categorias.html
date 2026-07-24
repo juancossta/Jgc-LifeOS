@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Categorias · Financeiro · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Financeiro / Categorias{% endblock %}
+{% block content %}
+
+<h3 class="fw-bold mb-4">Categorias financeiras</h3>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card-lifeos">
+      <h6 class="fw-bold mb-3">Nova categoria</h6>
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="mb-2">
+          {{ form.nome.label(class="form-label small") }}
+          {{ form.nome(class="form-control" + (" is-invalid" if form.nome.errors else "")) }}
+          {% for e in form.nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.tipo.label(class="form-label small") }}
+          {{ form.tipo(class="form-select") }}
+        </div>
+        {{ form.submit(class="btn btn-lifeos btn-lifeos-primary w-100") }}
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card-lifeos">
+      <h6 class="fw-bold mb-3">Suas categorias</h6>
+      <ul class="list-unstyled mb-0">
+        {% for c in categorias %}
+        <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+          <span>
+            {{ c.nome }}
+            <span class="badge-lifeos {{ 'badge-success' if c.tipo == 'receita' else 'badge-danger' }} ms-2">
+              {{ 'Receita' if c.tipo == 'receita' else 'Despesa' }}
+            </span>
+          </span>
+          <form method="POST" action="{{ url_for('financeiro.categoria_excluir', categoria_id=c.id) }}" data-confirm-delete="Excluir a categoria '{{ c.nome }}'?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent text-danger"><i class="bi bi-trash"></i></button>
+          </form>
+        </li>
+        {% else %}
+        <li class="text-muted small py-2">Nenhuma categoria cadastrada ainda.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

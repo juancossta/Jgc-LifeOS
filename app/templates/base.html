@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}LifeOS{% endblock %}</title>
+  <script>
+    // Aplica o tema salvo ANTES do CSS renderizar, evitando flash de tela clara
+    (function () {
+      const tema = localStorage.getItem("lifeos-theme") || "light";
+      if (tema === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("data-bs-theme", "dark");
+      } else {
+        document.documentElement.setAttribute("data-bs-theme", "light");
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    {% if current_user.is_authenticated %}
+    <aside class="sidebar">
+      <div class="sidebar-brand"><i class="bi bi-infinity"></i> LifeOS</div>
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard.index') }}" class="{{ 'active' if request.endpoint == 'dashboard.index' }}">
+          <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('fe.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('fe.') }}">
+          <i class="bi bi-book"></i> Fé
+        </a>
+        <a href="{{ url_for('saude.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('saude.') }}">
+          <i class="bi bi-heart-pulse"></i> Saúde
+        </a>
+        <a href="{{ url_for('estudos.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('estudos.') }}">
+          <i class="bi bi-mortarboard"></i> Estudos
+        </a>
+        <a href="{{ url_for('projetos.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('projetos.') }}">
+          <i class="bi bi-kanban"></i> Projetos
+        </a>
+        <a href="{{ url_for('humor.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('humor.') }}">
+          <i class="bi bi-emoji-smile"></i> Humor
+        </a>
+        <a href="{{ url_for('pureza.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('pureza.') }}">
+          <i class="bi bi-shield-check"></i> Pureza
+        </a>
+        <a href="{{ url_for('metas.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('metas.') }}">
+          <i class="bi bi-flag"></i> Metas
+        </a>
+        <a href="{{ url_for('financeiro.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('financeiro.') }}">
+          <i class="bi bi-cash-coin"></i> Financeiro
+        </a>
+        <a href="{{ url_for('jogos.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('jogos.') }}">
+          <i class="bi bi-controller"></i> Jogos
+        </a>
+        <a href="{{ url_for('historico.index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('historico.') }}">
+          <i class="bi bi-clock-history"></i> Histórico
+        </a>
+      </nav>
+    </aside>
+    {% endif %}
+
+    <div class="main-content">
+      {% if current_user.is_authenticated %}
+      <header class="navbar-top">
+        <div class="d-flex align-items-center gap-3">
+          <button id="sidebar-toggle" class="btn btn-sm d-md-none"><i class="bi bi-list"></i></button>
+          <span class="breadcrumb-lifeos">{% block breadcrumb %}LifeOS{% endblock %}</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <a href="{{ url_for('perfil.index') }}" class="btn btn-sm btn-lifeos-outline" title="Perfil e lembretes"><i class="bi bi-gear"></i></a>
+          <button id="theme-toggle" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-moon-stars"></i></button>
+          <span class="text-muted small">{{ current_user.nome }}</span>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+      </header>
+      {% endif %}
+
+      <main class="page-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-lifeos alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

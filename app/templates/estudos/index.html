@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Estudos · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Estudos{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0"><i class="bi bi-mortarboard text-primary"></i> Estudos</h3>
+  <a href="{{ url_for('estudos.novo') }}" class="btn btn-lifeos btn-lifeos-primary"><i class="bi bi-plus-lg"></i> Novo registro</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Horas esta semana</span><span class="stat-value">{{ stats.horas_semana }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Horas este mês</span><span class="stat-value">{{ stats.horas_mes }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Horas este ano</span><span class="stat-value">{{ stats.horas_ano }}</span></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-lifeos stat-card"><span class="stat-label">Projetos ativos</span><span class="stat-value">{{ stats.projetos_ativos }}</span></div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <div class="card-lifeos">
+      <h6 class="fw-bold mb-3">Tecnologias mais estudadas</h6>
+      {% if top_tecnologias %}
+      <div class="row g-2">
+        {% for nome, horas in top_tecnologias %}
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="text-center p-2 border rounded-3" style="border-color: var(--color-border) !important;">
+            <div class="fw-bold small">{{ nome }}</div>
+            <div class="text-muted small">{{ horas }}h</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted small mb-0">Nenhum registro ainda.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card-lifeos">
+  <div class="table-responsive">
+    <table class="table table-lifeos align-middle mb-0">
+      <thead><tr><th>Data</th><th>Tecnologia</th><th>Horas</th><th>Projeto</th><th>Curso</th><th></th></tr></thead>
+      <tbody>
+        {% for r in pagination.items %}
+        <tr>
+          <td>{{ r.data.strftime('%d/%m/%Y') }}</td>
+          <td>{{ r.tecnologia }}</td>
+          <td>{{ r.horas }}h</td>
+          <td>{{ r.projeto.nome if r.projeto else '—' }}</td>
+          <td>{{ r.curso or '—' }}</td>
+          <td class="text-end">
+            <a href="{{ url_for('estudos.editar', registro_id=r.id) }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-pencil"></i></a>
+            <form method="POST" action="{{ url_for('estudos.excluir', registro_id=r.id) }}" class="d-inline" data-confirm-delete="Excluir este registro de estudo?">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-lifeos-outline text-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">Nenhum registro encontrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination justify-content-center">
+    {% for p in pagination.iter_pages() %}
+      {% if p %}
+        <li class="page-item {{ 'active' if p == pagination.page }}"><a class="page-link" href="{{ url_for('estudos.index', page=p) }}">{{ p }}</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

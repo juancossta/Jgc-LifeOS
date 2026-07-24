@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} · Estudos · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Estudos / {{ titulo }}{% endblock %}
+{% block content %}
+
+<div class="card-lifeos fade-in" style="max-width: 720px;">
+  <h5 class="fw-bold mb-4">{{ titulo }}</h5>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        {{ form.data.label(class="form-label small") }}
+        {{ form.data(class="form-control" + (" is-invalid" if form.data.errors else "")) }}
+        {% for e in form.data.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        {{ form.tecnologia.label(class="form-label small") }}
+        {{ form.tecnologia(class="form-control" + (" is-invalid" if form.tecnologia.errors else ""), placeholder="Ex: Flask") }}
+        {% for e in form.tecnologia.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        {{ form.horas.label(class="form-label small") }}
+        {{ form.horas(class="form-control" + (" is-invalid" if form.horas.errors else "")) }}
+        {% for e in form.horas.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        {{ form.projeto_id.label(class="form-label small") }}
+        {{ form.projeto_id(class="form-select") }}
+      </div>
+      <div class="col-md-6">
+        {{ form.curso.label(class="form-label small") }}
+        {{ form.curso(class="form-control") }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form.descricao.label(class="form-label small") }}
+      {{ form.descricao(class="form-control", rows="3") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.observacoes.label(class="form-label small") }}
+      {{ form.observacoes(class="form-control", rows="2") }}
+    </div>
+
+    <div class="d-flex gap-2">
+      {{ form.submit(class="btn btn-lifeos btn-lifeos-primary") }}
+      <a href="{{ url_for('estudos.index') }}" class="btn btn-lifeos btn-lifeos-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

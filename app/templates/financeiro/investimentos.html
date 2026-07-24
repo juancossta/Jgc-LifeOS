@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Investimentos · Financeiro · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Financeiro / Investimentos{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">Investimentos</h3>
+  <a href="{{ url_for('financeiro.investimento_novo') }}" class="btn btn-lifeos btn-lifeos-primary"><i class="bi bi-plus-lg"></i> Novo investimento</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-4">
+    <div class="card-lifeos stat-card"><span class="stat-label">Total investido</span><span class="stat-value">R$ {{ "%.2f"|format(total_investido) }}</span></div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="card-lifeos stat-card"><span class="stat-label">Valor atual</span><span class="stat-value">R$ {{ "%.2f"|format(total_atual) }}</span></div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="card-lifeos stat-card">
+      <span class="stat-label">Rendimento total</span>
+      <span class="stat-value {{ 'text-success' if total_atual >= total_investido else 'text-danger' }}">
+        {{ "%.2f"|format(((total_atual - total_investido) / total_investido * 100) if total_investido else 0) }}%
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-lifeos">
+  <div class="table-responsive">
+    <table class="table table-lifeos align-middle mb-0">
+      <thead><tr><th>Nome</th><th>Tipo</th><th>Investido</th><th>Atual</th><th>Rendimento</th><th></th></tr></thead>
+      <tbody>
+        {% for i in investimentos %}
+        <tr>
+          <td>{{ i.nome }}</td>
+          <td>{{ i.tipo_label }}</td>
+          <td>R$ {{ "%.2f"|format(i.valor_investido) }}</td>
+          <td>R$ {{ "%.2f"|format(i.valor_atual) }}</td>
+          <td><span class="{{ 'text-success' if i.rendimento_pct >= 0 else 'text-danger' }}">{{ i.rendimento_pct }}%</span></td>
+          <td class="text-end">
+            <a href="{{ url_for('financeiro.investimento_editar', investimento_id=i.id) }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-pencil"></i></a>
+            <form method="POST" action="{{ url_for('financeiro.investimento_excluir', investimento_id=i.id) }}" class="d-inline" data-confirm-delete="Excluir este investimento?">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-lifeos-outline text-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">Nenhum investimento registrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

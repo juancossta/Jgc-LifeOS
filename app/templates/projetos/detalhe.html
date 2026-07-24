@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ projeto.nome }} · Projetos · LifeOS{% endblock %}
+{% block breadcrumb %}Dashboard / Projetos / {{ projeto.nome }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+  <div>
+    <h3 class="fw-bold mb-1">{{ projeto.nome }}</h3>
+    <div class="d-flex gap-2 align-items-center">
+      <span class="badge-lifeos {{ 'badge-danger' if projeto.prioridade == 'urgente' else ('badge-warning' if projeto.prioridade == 'alta' else 'badge-success') }}">
+        {{ projeto.prioridade_label }}
+      </span>
+      <span class="text-muted small">{{ projeto.status_label }}</span>
+      {% if projeto.atrasado %}<span class="badge-lifeos badge-danger">Atrasado</span>{% endif %}
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('projetos.editar', projeto_id=projeto.id) }}" class="btn btn-sm btn-lifeos-outline"><i class="bi bi-pencil"></i> Editar</a>
+    <form method="POST" action="{{ url_for('projetos.excluir', projeto_id=projeto.id) }}" data-confirm-delete="Excluir este projeto e todo o checklist?">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-sm btn-lifeos-outline text-danger"><i class="bi bi-trash"></i> Excluir</button>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card-lifeos mb-3">
+      <h6 class="fw-bold mb-2">Progresso</h6>
+      <div class="d-flex justify-content-between small text-muted mb-1">
+        <span>{{ projeto.checklist.count() }} itens no checklist</span>
+        <span>{{ projeto.progresso }}%</span>
+      </div>
+      <div class="progress" style="height: 8px;">
+        <div class="progress-bar bg-primary" style="width: {{ projeto.progresso }}%;"></div>
+      </div>
+    </div>
+
+    <div class="card-lifeos">
+      <h6 class="fw-bold mb-3">Checklist</h6>
+      <form method="POST" action="{{ url_for('projetos.checklist_novo', projeto_id=projeto.id) }}" class="d-flex gap-2 mb-3">
+        {{ checklist_form.hidden_tag() }}
+        {{ checklist_form.texto(class="form-control form-control-sm", placeholder="Adicionar item...") }}
+        <button type="submit" class="btn btn-sm btn-lifeos-primary btn-lifeos"><i class="bi bi-plus-lg"></i></button>
+      </form>
+
+      <ul class="list-unstyled mb-0">
+        {% for item in projeto.checklist %}
+        <li class="d-flex align-items-center justify-content-between py-2 border-bottom">
+          <form method="POST" action="{{ url_for('projetos.checklist_toggle', projeto_id=projeto.id, item_id=item.id) }}" class="d-flex align-items-center gap-2 flex-grow-1">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent">
+              <i class="bi {{ 'bi-check-circle-fill text-success' if item.concluido else 'bi-circle text-muted' }}"></i>
+            </button>
+            <span class="small {{ 'text-decoration-line-through text-muted' if item.concluido else '' }}">{{ item.texto }}</span>
+          </form>
+          <form method="POST" action="{{ url_for('projetos.checklist_excluir', projeto_id=projeto.id, item_id=item.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent text-danger"><i class="bi bi-x-lg"></i></button>
+          </form>
+        </li>
+        {% else %}
+        <li class="text-muted small py-2">Nenhum item ainda. Adicione o primeiro acima.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card-lifeos mb-3">
+      <h6 class="fw-bold mb-3">Detalhes</h6>
+      <ul class="list-unstyled small mb-0">
+        <li class="d-flex justify-content-between py-1"><span class="text-muted">Início</span><span>{{ projeto.data_inicio.strftime('%d/%m/%Y') if projeto.data_inicio else '—' }}</span></li>
+        <li class="d-flex justify-content-between py-1"><span class="text-muted">Prazo</span><span>{{ projeto.prazo.strftime('%d/%m/%Y') if projeto.prazo else '—' }}</span></li>
+        <li class="d-flex justify-content-between py-1"><span class="text-muted">Horas investidas</span><span>{{ projeto.horas_investidas }}h</span></li>
+      </ul>
+    </div>
+
+    {% if projeto.descricao %}
+    <div class="card-lifeos mb-3">
+      <h6 class="fw-bold mb-2">Descrição</h6>
+      <p class="small text-muted mb-0">{{ projeto.descricao }}</p>
+    </div>
+    {% endif %}
+
+    {% if projeto.anotacoes %}
+    <div class="card-lifeos">
+      <h6 class="fw-bold mb-2">Anotações</h6>
+      <p class="small text-muted mb-0">{{ projeto.anotacoes }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

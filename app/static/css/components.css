@@ -1,0 +1,58 @@
+.card-lifeos {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+.card-lifeos:hover { box-shadow: var(--shadow-md); }
+
+.stat-card { display: flex; flex-direction: column; gap: 0.4rem; }
+.stat-card .stat-value { font-size: 1.6rem; font-weight: 700; }
+.stat-card .stat-label { font-size: 0.8rem; color: var(--color-text-muted); }
+
+.btn-lifeos {
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.btn-lifeos-primary { background: var(--color-primary); color: #fff; }
+.btn-lifeos-primary:hover { background: var(--color-primary-hover); }
+.btn-lifeos-outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.badge-lifeos {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.badge-success { background: color-mix(in srgb, var(--color-success) 15%, transparent); color: var(--color-success); }
+.badge-warning { background: color-mix(in srgb, var(--color-warning) 15%, transparent); color: var(--color-warning); }
+.badge-danger  { background: color-mix(in srgb, var(--color-danger) 15%, transparent); color: var(--color-danger); }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 37%, var(--color-border) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeleton-loading {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+.fade-in { animation: fadeIn var(--transition-base) ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.table-lifeos th { color: var(--color-text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.table-lifeos td, .table-lifeos th { border-color: var(--color-border) !important; vertical-align: middle; }
