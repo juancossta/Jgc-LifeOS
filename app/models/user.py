@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
@@ -20,6 +20,10 @@ class User(UserMixin, db.Model):
 
     # Notificações (Telegram)
     telegram_chat_id = db.Column(db.String(50))
+
+    # Redefinição de senha
+    reset_token = db.Column(db.String(100))
+    reset_token_expira = db.Column(db.DateTime)
 
     registros_fe = db.relationship(
         "RegistroFe", backref="user", lazy="dynamic", cascade="all, delete-orphan"
@@ -84,6 +88,23 @@ class User(UserMixin, db.Model):
         if imc < 30:
             return "Sobrepeso"
         return "Obesidade"
+
+    def gerar_token_redefinicao(self):
+        import secrets
+        self.reset_token = secrets.token_urlsafe(32)
+        self.reset_token_expira = datetime.utcnow() + timedelta(hours=1)
+        return self.reset_token
+
+    def token_redefinicao_valido(self, token):
+        if not self.reset_token or not self.reset_token_expira:
+            return False
+        if self.reset_token != token:
+            return False
+        return datetime.utcnow() <= self.reset_token_expira
+
+    def limpar_token_redefinicao(self):
+        self.reset_token = None
+        self.reset_token_expira = None
 
     def __repr__(self):
         return f"<User {self.email}>"

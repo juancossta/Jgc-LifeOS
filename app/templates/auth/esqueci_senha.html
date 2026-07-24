@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Esqueci minha senha · LifeOS{% endblock %}
+{% block main_class %}auth-page{% endblock %}
+{% block content %}
+<div class="auth-shell">
+  {% include "auth/_lado.html" %}
+
+  <div class="auth-form-col">
+    <div class="auth-card fade-in">
+      <h4 class="mb-1 fw-bold">Esqueci minha senha</h4>
+      <p class="text-muted small mb-4">Informe seu e-mail. Enviaremos um link de redefinição pelo Telegram.</p>
+
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.email.label(class="form-label small") }}
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+          {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        {{ form.submit(class="btn btn-lifeos btn-lifeos-primary w-100") }}
+      </form>
+
+      <p class="text-center small text-muted mt-3 mb-0">
+        <a href="{{ url_for('auth.login') }}">Voltar para o login</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

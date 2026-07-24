@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Criar conta · LifeOS{% endblock %}
+{% block title %}Redefinir senha · LifeOS{% endblock %}
 {% block main_class %}auth-page{% endblock %}
 {% block content %}
 <div class="auth-shell">
@@ -7,21 +7,11 @@
 
   <div class="auth-form-col">
     <div class="auth-card fade-in">
-      <h4 class="mb-1 fw-bold">Criar conta</h4>
-      <p class="text-muted small mb-4">Comece a registrar sua vida em um só lugar.</p>
+      <h4 class="mb-1 fw-bold">Nova senha</h4>
+      <p class="text-muted small mb-4">Escolha uma nova senha para sua conta.</p>
 
       <form method="POST" novalidate>
         {{ form.hidden_tag() }}
-        <div class="mb-3">
-          {{ form.nome.label(class="form-label small") }}
-          {{ form.nome(class="form-control" + (" is-invalid" if form.nome.errors else "")) }}
-          {% for e in form.nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
-        </div>
-        <div class="mb-3">
-          {{ form.email.label(class="form-label small") }}
-          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
-          {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
-        </div>
         <div class="mb-3">
           {{ form.senha.label(class="form-label small") }}
           {{ form.senha(class="form-control" + (" is-invalid" if form.senha.errors else "")) }}
@@ -34,10 +24,6 @@
         </div>
         {{ form.submit(class="btn btn-lifeos btn-lifeos-primary w-100") }}
       </form>
-
-      <p class="text-center small text-muted mt-3 mb-0">
-        Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a>
-      </p>
     </div>
   </div>
 </div>
